@@ -16,7 +16,9 @@ def max_sliding_window_naive(sequence, m):
         elif idx < m:
             cur_max = item if cur_max < item else cur_max
         else:
+            # peek at leftmost item
             drop_item = q[0]
+            # peek at rightmost item
             psudo_max = q[-1]
             res.append(max(drop_item, psudo_max))
             q.popleft()
