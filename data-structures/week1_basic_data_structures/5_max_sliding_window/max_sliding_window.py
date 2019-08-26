@@ -3,30 +3,77 @@
 from collections import deque
 
 
-def max_sliding_window_naive(sequence, m):
-    q = deque()
-    res = []
-    cur_max = float('-inf')
+class Stack:
+    def __init__(self):
+        self.__stack = []
 
-    for idx, item in enumerate(sequence):
-        if idx == 0:
-            q.append(item)
-        elif idx == m - 1:
-            q.append(cur_max)
-        elif idx < m:
-            cur_max = item if cur_max < item else cur_max
+    def push(self, a):
+        self.__stack.append(a)
+
+    def pop(self):
+        assert(len(self.__stack))
+        return self.__stack.pop()
+
+    def empty(self):
+        return len(self.__stack) == 0
+
+    def peek(self):
+        assert(len(self.__stack))
+        return self.__stack[-1]
+
+
+class StackWithMax:
+    def __init__(self):
+        self.__stack = []
+        self.max_stack = Stack()
+
+    def Push(self, a):
+        self.__stack.append(a)
+        if self.max_stack.empty():
+            self.max_stack.push(a)
         else:
-            # peek at leftmost item
-            drop_item = q[0]
-            # peek at rightmost item
-            psudo_max = q[-1]
-            res.append(max(drop_item, psudo_max))
-            q.popleft()
-            q.append(item)
+            cur_max = self.max_stack.peek()
+            if cur_max is not None and cur_max <= a:
+                self.max_stack.push(a)
 
-    drop_item = q[0]
-    psudo_max = q[-1]
-    res.append(max(drop_item, psudo_max))
+    def Pop(self):
+        assert(len(self.__stack))
+        cur_top = self.__stack.pop()
+        cur_max = self.max_stack.peek()
+        if cur_max == cur_top:
+            self.max_stack.pop()
+        return cur_top
+
+    def Max(self):
+        assert(len(self.__stack))
+        return self.max_stack.peek()
+
+    def Empty(self):
+        return len(self.__stack) == 0
+
+
+def max_sliding_window_naive(sequence, m):
+    res = []
+    stack_1 = StackWithMax()
+    stack_2 = StackWithMax()
+
+    for idx, cur_item in enumerate(sequence):
+        if idx < m:
+            stack_1.Push(cur_item)
+        else:
+            while not stack_1.Empty():
+                stack_2.Push(stack_1.Pop())
+            res.append(stack_2.Max())
+
+            stack_2.Pop()
+
+            while not stack_2.Empty():
+                stack_1.Push(stack_2.Pop())
+            stack_1.Push(cur_item)
+
+    while not stack_1.Empty():
+        stack_2.Push(stack_1.Pop())
+    res.append(stack_2.Max())
 
     return res
 
