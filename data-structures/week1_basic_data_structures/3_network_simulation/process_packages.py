@@ -22,7 +22,6 @@ class Buffer:
             return Response(False, request.arrived_at)
         else:
             last_packet_finish_time = self.finish_time[-1]
-
             # pop from the front of finish_time all the packets which are already
             # processed by the time new packet arrives.
             while self.finish_time and self.finish_time[0] <= request.arrived_at:
